@@ -564,11 +564,13 @@ require('mason-lspconfig').setup()
 --  define the property 'filetypes' to the map in question.
 local servers = {
   -- clangd = {},
-  -- gopls = {},
-  -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+  gopls = { filetypes = {'go'}, },
+  pyright = { filetypes = { 'python' }, },
+  tsserver = { filetypes = {'tsx', 'ts', 'js'} },
+  html = { filetypes = { 'html', 'twig', 'hbs'} },
+  -- general purpose lsp for formatting
+  efm  = { filetypes = {'python'} },
 
   lua_ls = {
     Lua = {
@@ -604,6 +606,33 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+require('lspconfig').efm.setup {
+    on_attach = function ()
+      print('on_attach run')
+      return on_attach
+    end,
+    flags = {
+      debounce_text_changes = 150,
+    },
+    init_options = {documentFormatting = true},
+    filetypes = {"python"},
+    settings = {
+        rootMarkers = {".git/"},
+        languages = {
+            python = {
+                {formatCommand = "blue --quiet -", formatStdin = true}
+            }
+        }
+    }
+}
+-- autocommand to run lsp format on save
+vim.api.nvim_exec([[
+  augroup FormatOnSave
+    autocmd!
+    autocmd BufWritePre * lua vim.lsp.buf.format()
+  augroup END
+]], false)
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
