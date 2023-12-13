@@ -604,7 +604,7 @@ local servers = {
   html     = { filetypes = { 'html', 'twig', 'hbs' } },
   -- general purpose lsp for formatting
   efm      = { filetypes = { 'python' } },
-
+  llm_ls   = {},
   lua_ls   = {
     Lua = {
       workspace = { checkThirdParty = false },
