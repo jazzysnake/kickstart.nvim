@@ -132,15 +132,15 @@ require('lazy').setup({
         repository = "codellama/CodeLlama-13b-hf",
       },
       debounce_ms = 150,
-      accept_keymap = "<Tab>",
-      dismiss_keymap = "<S-Tab>",
+      accept_keymap = "<C-m>",
+      dismiss_keymap = "<C-S-m>",
       tls_skip_verify_insecure = false,
       -- llm-ls configuration, cf llm-ls section
       lsp = {
         bin_path = vim.api.nvim_call_function("stdpath", { "data" }) .. "/mason/bin/llm-ls",
         version = "0.4.0",
       },
-      enable_suggestions_on_startup = true,
+      enable_suggestions_on_startup = false,
       enable_suggestions_on_files = "*", -- pattern matching syntax to enable suggestions on specific files, either a string or a list of strings
     }
   },
@@ -221,13 +221,12 @@ require('lazy').setup({
       end,
     },
   },
-
   {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
 
@@ -311,6 +310,7 @@ vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
