@@ -73,8 +73,7 @@ require('lazy').setup({
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
 
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
+  'github/copilot.vim',
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -112,8 +111,41 @@ require('lazy').setup({
     },
   },
 
+  {
+    'huggingface/llm.nvim',
+    opts = {
+      -- api_token = 'your api token',
+      -- this token can be supplied by setting
+      -- LLM_NVIM_API_TOKEN env var
+      tokens_to_clear = { "<EOT>" },
+      fim = {
+        enabled = true,
+        prefix = "<PRE> ",
+        middle = " <MID>",
+        suffix = " <SUF>",
+      },
+      -- uses CodeLlama hosted on HF
+      model = "codellama/CodeLlama-13b-hf",
+      context_window = 4096,
+      tokenizer = {
+        repository = "codellama/CodeLlama-13b-hf",
+      },
+      debounce_ms = 150,
+      accept_keymap = "<C-m>",
+      dismiss_keymap = "<C-S-m>",
+      tls_skip_verify_insecure = false,
+      -- llm-ls configuration, cf llm-ls section
+      lsp = {
+        bin_path = vim.api.nvim_call_function("stdpath", { "data" }) .. "/mason/bin/llm-ls",
+        version = "0.4.0",
+      },
+      enable_suggestions_on_startup = false,
+      enable_suggestions_on_files = "*", -- pattern matching syntax to enable suggestions on specific files, either a string or a list of strings
+    }
+  },
+
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',  opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -188,14 +220,31 @@ require('lazy').setup({
       end,
     },
   },
-
   {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      vim.cmd.colorscheme 'catppuccin'
     end,
+  },
+  -- tmux navigation
+  {
+    "christoomey/vim-tmux-navigator",
+    cmd = {
+      "TmuxNavigateLeft",
+      "TmuxNavigateDown",
+      "TmuxNavigateUp",
+      "TmuxNavigateRight",
+      "TmuxNavigatePrevious",
+    },
+    keys = {
+      { "<c-h>",  "<cmd><C-U>TmuxNavigateLeft<cr>" },
+      { "<c-j>",  "<cmd><C-U>TmuxNavigateDown<cr>" },
+      { "<c-k>",  "<cmd><C-U>TmuxNavigateUp<cr>" },
+      { "<c-l>",  "<cmd><C-U>TmuxNavigateRight<cr>" },
+      { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+    },
   },
 
   {
@@ -278,6 +327,7 @@ vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
@@ -565,14 +615,13 @@ require('mason-lspconfig').setup()
 local servers = {
   -- clangd = {},
   -- rust_analyzer = {},
-  gopls = { filetypes = {'go'}, },
-  pyright = { filetypes = { 'python' }, },
-  tsserver = { filetypes = {'tsx', 'ts', 'js'} },
-  html = { filetypes = { 'html', 'twig', 'hbs'} },
+  gopls    = { filetypes = { 'go' }, },
+  pyright  = { filetypes = { 'python' }, },
+  tsserver = { filetypes = { 'tsx', 'ts', 'js' } },
+  html     = { filetypes = { 'html', 'twig', 'hbs' } },
   -- general purpose lsp for formatting
-  efm  = { filetypes = {'python'} },
-
-  lua_ls = {
+  efm      = { filetypes = { 'python' } },
+  lua_ls   = {
     Lua = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
@@ -608,23 +657,23 @@ mason_lspconfig.setup_handlers {
 }
 
 require('lspconfig').efm.setup {
-    on_attach = function ()
-      print('on_attach run')
-      return on_attach
-    end,
-    flags = {
-      debounce_text_changes = 150,
-    },
-    init_options = {documentFormatting = true},
-    filetypes = {"python"},
-    settings = {
-        rootMarkers = {".git/"},
-        languages = {
-            python = {
-                {formatCommand = "blue --quiet -", formatStdin = true}
-            }
-        }
+  on_attach = function()
+    print('on_attach run')
+    return on_attach
+  end,
+  flags = {
+    debounce_text_changes = 150,
+  },
+  init_options = { documentFormatting = true },
+  filetypes = { "python" },
+  settings = {
+    rootMarkers = { ".git/" },
+    languages = {
+      python = {
+        { formatCommand = "blue --quiet -", formatStdin = true }
+      }
     }
+  }
 }
 -- autocommand to run lsp format on save
 vim.api.nvim_exec([[
@@ -685,6 +734,15 @@ cmp.setup {
     { name = 'path' },
   },
 }
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+-- copilot accept with ctrl-j
+vim.keymap.set('i', '<C-J>', 'copilot#Accept("<CR>")', {
+  expr = true,
+  replace_keycodes = false
+})
+vim.g.copilot_no_tab_map = true
+-- set up to use tab only indentations
+vim.opt_global.tabstop = 4
+vim.opt_global.shiftwidth = 0
+vim.opt_global.softtabstop = 0
+vim.opt_global.expandtab = false
+vim.opt_global.smarttab = true
