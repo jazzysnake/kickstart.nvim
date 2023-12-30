@@ -73,8 +73,7 @@ require('lazy').setup({
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
 
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
+  'github/copilot.vim',
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -228,6 +227,24 @@ require('lazy').setup({
     config = function()
       vim.cmd.colorscheme 'catppuccin'
     end,
+  },
+  -- tmux navigation
+  {
+    "christoomey/vim-tmux-navigator",
+    cmd = {
+      "TmuxNavigateLeft",
+      "TmuxNavigateDown",
+      "TmuxNavigateUp",
+      "TmuxNavigateRight",
+      "TmuxNavigatePrevious",
+    },
+    keys = {
+      { "<c-h>",  "<cmd><C-U>TmuxNavigateLeft<cr>" },
+      { "<c-j>",  "<cmd><C-U>TmuxNavigateDown<cr>" },
+      { "<c-k>",  "<cmd><C-U>TmuxNavigateUp<cr>" },
+      { "<c-l>",  "<cmd><C-U>TmuxNavigateRight<cr>" },
+      { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+    },
   },
 
   {
@@ -604,7 +621,6 @@ local servers = {
   html     = { filetypes = { 'html', 'twig', 'hbs' } },
   -- general purpose lsp for formatting
   efm      = { filetypes = { 'python' } },
-  llm_ls   = {},
   lua_ls   = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -718,6 +734,15 @@ cmp.setup {
     { name = 'path' },
   },
 }
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+-- copilot accept with ctrl-j
+vim.keymap.set('i', '<C-J>', 'copilot#Accept("<CR>")', {
+  expr = true,
+  replace_keycodes = false
+})
+vim.g.copilot_no_tab_map = true
+-- set up to use tab only indentations
+vim.opt_global.tabstop = 4
+vim.opt_global.shiftwidth = 0
+vim.opt_global.softtabstop = 0
+vim.opt_global.expandtab = false
+vim.opt_global.smarttab = true
